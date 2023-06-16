@@ -6,13 +6,10 @@ import matplotlib.pyplot as plt
 
 
 class Helper:
-    def generate(self):
-        # jeśli folder już istnieje, zostaje usunięty
-        if os.path.exists('faces'):
-            shutil.rmtree("faces")
-
+    def generate_images(self):
         # utworzenie folderu ze zdjęciami
-        os.mkdir('faces')
+        if not os.path.exists('faces'):
+            os.mkdir('faces')
 
         matplotlib.use('TkAgg')
 
@@ -25,6 +22,10 @@ class Helper:
             # utworzenie nowego folderu (1 folder = 1 osoba)
             if j == 0:
                 parent_dir = os.path.join("faces", 'person_' + (i // 10).__str__())
+
+                # jeśli folder istnieje, zotaje usunięty i stworzony na nowo
+                if os.path.exists(parent_dir):
+                    shutil.rmtree(parent_dir)
                 os.mkdir(parent_dir)
 
             # dodanie zdjęcia do folderu
@@ -40,3 +41,5 @@ class Helper:
                 j = 0
             else:
                 j += 1
+
+        print("Images generated successfuly")
