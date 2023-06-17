@@ -107,7 +107,8 @@ class AppView:
         menu_label.pack(pady=(50, 25))
 
         # import images
-        self.import_images_info = Label(self.register_file_screen, text="Select 8 image files", font="helvetica 18", fg=LIGHT, bg=DARK)
+        self.import_images_info = Label(self.register_file_screen, text="Select 8 image files", font="helvetica 18",
+                                        fg=LIGHT, bg=DARK)
         self.import_images_info.pack(pady=(10, 5))
 
         select_files_button = Button(self.register_file_screen, text="Select files", font=("Helvetica", 18),
@@ -126,7 +127,7 @@ class AppView:
         input_name = Button(self.register_file_screen, text="Register", font=("Helvetica", 18),
                             bg=DARK_BUTTON, fg=LIGHT,
                             activebackground=DARK_BUTTON_FOCUS, activeforeground=LIGHT, bd=5, width=12,
-                            command=self.set_name)
+                            command=self.register)
         input_name.pack()
 
         self.entry_name_info = Label(self.register_file_screen, text="", font="helvetica 18", fg=LIGHT, bg=DARK)
@@ -134,7 +135,7 @@ class AppView:
 
         back_button = Button(self.register_file_screen, text="Back", font=("Helvetica", 27), bg=DARK_BUTTON, fg=LIGHT,
                              activebackground=DARK_BUTTON_FOCUS, activeforeground=LIGHT, bd=5, width=15,
-                             command=self.open_menu_screen)
+                             command=self.clear_and_back)
         back_button.pack(pady=10)
 
     def open_file_dialog(self):
@@ -156,24 +157,42 @@ class AppView:
                 self.register_files.append(file_path)
             return
 
-    def set_name(self):
+    def register(self):
         if self.name_entry.get() == "":
-            self.entry_name_info.config(text="Provide your name", fg="red")
-            return
-        elif len(self.register_files) != 8:
-            self.import_images_info.config(text="Please select exactly 8 Image files", fg="red")
+            self.entry_name_info.config(text="Please provide your name", fg="red")
             return
         else:
-            new_person_dir = os.path.join("generated_faces", self.name_entry.get())
-            if os.path.exists(new_person_dir):
-                self.entry_name_info.config(text="Person with this name already exist in database", fg="red")
-                return
+            self.entry_name_info.config(text="")
 
-            os.mkdir(new_person_dir)
+        if len(self.register_files) != 8:
+            self.import_images_info.config(text="Please select exactly 8 Image files", fg="red")
+            return
 
-            for i, file_path in enumerate(self.register_files):
-                temp = self.name_entry.get() + "_" + str(i) + ".png"
-                new_file_path = os.path.join(new_person_dir, temp)
-                shutil.copy2(file_path, new_file_path)
+        if not os.path.exists('database'):
+            os.mkdir('database')
 
-            self.entry_name_info.config(text="Successfully registered", fg="green")
+        name_parts = self.name_entry.get().split()
+        person_name = ""
+
+        for part in name_parts:
+            person_name += part + "_"
+
+        person_name = person_name[:-1]
+
+        if os.path.exists("database/" + person_name + "_0.png"):
+            self.entry_name_info.config(text="Person with this name aready exist in database", fg="red")
+            return
+
+        for i, file_path in enumerate(self.register_files):
+            temp = person_name + "_" + str(i) + ".png"
+            new_file_path = os.path.join("database", temp)
+            shutil.copy2(file_path, new_file_path)
+
+        self.entry_name_info.config(text="Successfully registered", fg="green")
+
+    def clear_and_back(self):
+        self.import_images_info.config(text="Select 8 image files", fg="white")
+        self.entry_name_info.config(text="")
+        self.name_entry.delete(0, END)
+        self.register_files.clear()
+        self.open_menu_screen()
