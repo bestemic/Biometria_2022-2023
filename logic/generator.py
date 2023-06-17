@@ -23,7 +23,7 @@ def generate():
                 shutil.rmtree(parent_dir)
             os.mkdir(parent_dir)
 
-        plt.figure()
+        plt.figure(figsize=(0.64, 0.64))
         plt.axis('off')
         plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
         plt.imshow(data[i], cmap='gray')
