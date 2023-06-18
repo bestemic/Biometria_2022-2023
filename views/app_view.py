@@ -248,17 +248,19 @@ class AppView:
             ("Image files", "*.png *.jpg *.jpeg"), ("All files", "*.*")))
         root.destroy()
 
-        if not file_path:
+        if not file_path or len(file_path) != 1:
             self.login_images_info.config(text="Please select exactly one file", fg="red")
             return
         else:
             self.login_images_info.config(text="Correctly imported file", fg="green")
-            self.login_file = file_path
+            self.login_file = file_path[0]
 
     def login_by_file(self):
         if not self.login_file:
             self.login_images_info.config(text="Please select exactly one file", fg="red")
             return
+
+        self.kernel.login(self.login_file)
 
         self.login_name_info.config(text="Not autorized user", fg="red")
         return
