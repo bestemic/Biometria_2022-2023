@@ -117,7 +117,7 @@ class AppView:
 
         # import images
         self.register_images_info = Label(self.register_file_screen, text="Select 8 image files", font="helvetica 18",
-                                        fg=LIGHT, bg=DARK)
+                                          fg=LIGHT, bg=DARK)
         self.register_images_info.pack(pady=(10, 5))
 
         select_files_button = Button(self.register_file_screen, text="Select files", font=("Helvetica", 18),
@@ -167,7 +167,6 @@ class AppView:
             return
 
     def register_with_files(self):
-        print("mam: " + self.name_entry.get())
         if self.name_entry.get() == "":
             self.entry_name_info.config(text="Please provide your name", fg="red")
             return
@@ -190,7 +189,7 @@ class AppView:
         person_name = person_name[:-1]
 
         if os.path.exists("database/" + person_name + "_0.png"):
-            self.entry_name_info.config(text="Person with this name aready exist in database", fg="red")
+            self.entry_name_info.config(text="Person with this name already exist in database", fg="red")
             return
 
         for i, file_path in enumerate(self.register_files):
@@ -199,6 +198,7 @@ class AppView:
             shutil.copy2(file_path, new_file_path)
 
         self.entry_name_info.config(text="Successfully registered", fg="green")
+        self.kernel.compute_eigenfaces()
 
     def register_clear_and_back(self):
         self.register_images_info.config(text="Select 8 image files", fg="white")
@@ -216,7 +216,7 @@ class AppView:
 
         # import images
         self.login_images_info = Label(self.login_file_screen, text="Select one image file", font="helvetica 18",
-                                        fg=LIGHT, bg=DARK)
+                                       fg=LIGHT, bg=DARK)
         self.login_images_info.pack(pady=(10, 5))
 
         select_files_button = Button(self.login_file_screen, text="Select file", font=("Helvetica", 18),
@@ -226,9 +226,9 @@ class AppView:
         select_files_button.pack(pady=(0, 20))
 
         login_button = Button(self.login_file_screen, text="Login", font=("Helvetica", 18),
-                               bg=DARK_BUTTON, fg=LIGHT,
-                               activebackground=DARK_BUTTON_FOCUS, activeforeground=LIGHT, bd=5, width=12,
-                               command=self.login_by_file)
+                              bg=DARK_BUTTON, fg=LIGHT,
+                              activebackground=DARK_BUTTON_FOCUS, activeforeground=LIGHT, bd=5, width=12,
+                              command=self.login_by_file)
         login_button.pack()
 
         self.login_name_info = Label(self.login_file_screen, text="", font="helvetica 18", fg=LIGHT, bg=DARK)
@@ -262,8 +262,6 @@ class AppView:
 
         self.login_name_info.config(text="Not autorized user", fg="red")
         return
-
-
 
     def login_clear_and_back(self):
         self.login_images_info.config(text="Select one image File", fg="white")

@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 
 IMAGE_FOLDER = 'database'
-NUM_EIGENVALUES = 10
+NUM_EIGENVALUES = 90
 
 
 class Kernel:
@@ -18,7 +18,6 @@ class Kernel:
         if not os.path.exists(IMAGE_FOLDER):
             os.mkdir(IMAGE_FOLDER)
 
-    # TODO dodać po rejestracji przez użytkownika
     def compute_eigenfaces(self):
         if len(os.listdir(IMAGE_FOLDER)) == 0:
             return
@@ -37,7 +36,7 @@ class Kernel:
         _, eigenvectors_sort = zip(*eig_pairs)
         eigenvectors_sort = np.array(eigenvectors_sort)
 
-        self.eigenfaces = np.dot(eigenvectors_sort[:16], feature_vectors_subtracted.T)
+        self.eigenfaces = np.dot(eigenvectors_sort[:NUM_EIGENVALUES], feature_vectors_subtracted.T)
         self.transformed_faces = np.dot(self.eigenfaces, feature_vectors_subtracted).T
 
     def load_from_database(self):
