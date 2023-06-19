@@ -5,7 +5,7 @@ import numpy as np
 from sklearn import preprocessing
 
 IMAGE_FOLDER = 'database'
-NUM_EIGENVALUES = 90
+NUM_EIGENVALUES = 100
 
 
 class Kernel:
@@ -29,25 +29,25 @@ class Kernel:
         self.mean_face = np.mean(feature_vectors, axis=0)
         feature_vectors_subtracted = feature_vectors - self.mean_face
 
-        covariance_matrix = (feature_vectors_subtracted.dot(feature_vectors_subtracted.T) / len(feature_vectors))
+        covariance_matrix = (
+                feature_vectors_subtracted.dot(feature_vectors_subtracted.T) / len(feature_vectors_subtracted))
         eigenvalues, eigenvectors = np.linalg.eig(covariance_matrix)
 
         eig_pairs = sorted(zip(eigenvalues, eigenvectors.T), reverse=True)
         _, eigenvectors_sort = zip(*eig_pairs)
-        eigenvectors_sort = np.array(eigenvectors_sort)
+        eigenvectors_sort = np.array(eigenvectors_sort)[:NUM_EIGENVALUES]
 
-        matrix_eigenvectors = feature_vectors_subtracted[:NUM_EIGENVALUES].T @ eigenvectors_sort
+        matrix_eigenvectors = feature_vectors_subtracted.T @ eigenvectors_sort.T
 
         self.eigenfaces = preprocessing.normalize(matrix_eigenvectors.T)
-        self.transformed_faces = np.dot(self.eigenfaces, feature_vectors_subtracted.T)
+        self.transformed_faces = np.dot(self.eigenfaces, feature_vectors_subtracted.T).T
 
         temp_norms = []
         for i in self.transformed_faces:
             for j in self.transformed_faces:
                 temp_norms.append(np.linalg.norm(i - j))
 
-        self.theta = max(temp_norms) / 2
-        print("theta: " + str(self.theta))
+        self.theta = max(temp_norms) / 4
 
     def login(self, image_path):
         image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
@@ -59,29 +59,6 @@ class Kernel:
         epsilon = []
         for face in self.transformed_faces:
             epsilon.append(np.linalg.norm(projected_vector - face))
-
-        print("epsilon: " + str(min(epsilon)))
-
-        reconstructed_face = np.dot(self.eigenfaces.T, projected_vector)
-        ksi = np.linalg.norm(subtracted_vector - reconstructed_face)
-
-        print("ksi: " + str(ksi))
-
-        if ksi >= self.theta:
-            print("This is not a face")
-        else:
-            new = False
-            for i in epsilon:
-                if i >= self.theta:
-                    print("Nowa twarz")
-                    new = True
-                    break
-
-            if not new:
-                if min(epsilon) < self.theta:
-                    print("Znana twarz")
-                else:
-                    print("Ani nowe ani stare")
 
     def load_from_database(self):
         feature_vectors = []
