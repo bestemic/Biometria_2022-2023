@@ -70,41 +70,20 @@ class AppView:
         menu_label = Label(self.menu_screen, text="Select option", font="Helvetica 45", fg=LIGHT, bg=DARK)
         menu_label.pack(pady=(50, 75))
 
-        button_container = Frame(self.menu_screen, bg=DARK)
-        button_container.pack()
+        login_button = Button(self.menu_screen, text="Login", font=("Helvetica", 27), bg=DARK_BUTTON,
+                              fg=LIGHT,
+                              activebackground=DARK_BUTTON_FOCUS, activeforeground=LIGHT, bd=5, width=18,
+                              command=self.open_login_file_screen)
+        login_button.pack(pady=20)
 
-        button_container_left = Frame(button_container, bg=DARK)
-        button_container_left.pack(side=LEFT, padx=(0, 20))
-
-        button_container_right = Frame(button_container, bg=DARK)
-        button_container_right.pack(side=RIGHT, padx=(20, 0))
-
-        login_button1 = Button(button_container_left, text="Login by File", font=("Helvetica", 27), bg=DARK_BUTTON,
-                               fg=LIGHT,
-                               activebackground=DARK_BUTTON_FOCUS, activeforeground=LIGHT, bd=5, width=18,
-                               command=self.open_login_file_screen)
-        login_button1.pack(pady=20)
-
-        login_button2 = Button(button_container_right, text="Login by Camera", font=("Helvetica", 27), bg=DARK_BUTTON,
-                               fg=LIGHT,
-                               activebackground=DARK_BUTTON_FOCUS, activeforeground=LIGHT, bd=5, width=18,
-                               command=self.open_start_screen)
-        login_button2.pack(pady=20)
-
-        register_button1 = Button(button_container_left, text="Register by File", font=("Helvetica", 27),
-                                  bg=DARK_BUTTON, fg=LIGHT,
-                                  activebackground=DARK_BUTTON_FOCUS, activeforeground=LIGHT, bd=5, width=18,
-                                  command=self.open_register_file_screen)
-        register_button1.pack(pady=20)
-
-        register_button2 = Button(button_container_right, text="Register by Camera", font=("Helvetica", 27),
-                                  bg=DARK_BUTTON, fg=LIGHT,
-                                  activebackground=DARK_BUTTON_FOCUS, activeforeground=LIGHT, bd=5, width=18,
-                                  command=self.open_start_screen)
-        register_button2.pack(pady=20)
+        register_button = Button(self.menu_screen, text="Register", font=("Helvetica", 27),
+                                 bg=DARK_BUTTON, fg=LIGHT,
+                                 activebackground=DARK_BUTTON_FOCUS, activeforeground=LIGHT, bd=5, width=18,
+                                 command=self.open_register_file_screen)
+        register_button.pack(pady=20)
 
         back_button = Button(self.menu_screen, text="Back", font=("Helvetica", 27), bg=DARK_BUTTON, fg=LIGHT,
-                             activebackground=DARK_BUTTON_FOCUS, activeforeground=LIGHT, bd=5, width=15,
+                             activebackground=DARK_BUTTON_FOCUS, activeforeground=LIGHT, bd=5, width=18,
                              command=self.open_start_screen)
         back_button.pack(pady=(50, 0))
 
