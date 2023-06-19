@@ -2,6 +2,7 @@ import os
 
 import cv2
 import numpy as np
+from sklearn import preprocessing
 
 IMAGE_FOLDER = 'database'
 NUM_EIGENVALUES = 90
@@ -25,45 +26,20 @@ class Kernel:
 
         feature_vectors = self.load_from_database()
 
-        from sklearn.decomposition import PCA
-        pca = PCA(n_components=4)
-        pca.fit(feature_vectors)
-
-        print(pca.explained_variance_)
-
-
-        # feature_vectors = np.transpose(feature_vectors)
-
         self.mean_face = np.mean(feature_vectors, axis=0)
+        feature_vectors_subtracted = feature_vectors - self.mean_face
 
+        covariance_matrix = (feature_vectors_subtracted.dot(feature_vectors_subtracted.T) / len(feature_vectors))
+        eigenvalues, eigenvectors = np.linalg.eig(covariance_matrix)
 
+        eig_pairs = sorted(zip(eigenvalues, eigenvectors.T), reverse=True)
+        _, eigenvectors_sort = zip(*eig_pairs)
+        eigenvectors_sort = np.array(eigenvectors_sort)
 
-        feature_vectors_subtracted = feature_vectors - np.expand_dims(self.mean_face, axis=0)
+        matrix_eigenvectors = feature_vectors_subtracted[:NUM_EIGENVALUES].T @ eigenvectors_sort
 
-        # print(feature_vectors_subtracted)
-        # covariance_matrix = np.dot(feature_vectors_subtracted.T, feature_vectors_subtracted)
-        #
-        # eigenvalues, eigenvectors = np.linalg.eigh(covariance_matrix)
-        # print(eigenvalues)
-        #
-        # eig_pairs = sorted(zip(eigenvalues, eigenvectors.T), reverse=True)
-        # _, eigenvectors_sort = zip(*eig_pairs)
-        # eigenvectors_sort = np.array(eigenvectors_sort)
-        #
-        # self.eigenfaces = np.dot(eigenvectors_sort[:NUM_EIGENVALUES], feature_vectors_subtracted.T)
-        # self.transformed_faces = np.dot(self.eigenfaces, feature_vectors_subtracted).T
-
-        self.eigenfaces = pca.components_
+        self.eigenfaces = preprocessing.normalize(matrix_eigenvectors.T)
         self.transformed_faces = np.dot(self.eigenfaces, feature_vectors_subtracted.T)
-
-        # print(feature_vectors_subtracted.shape)
-        # print(self.eigenfaces.shape)
-        # print(self.transformed_faces.shape)
-        # print(self.transformed_faces)
-        #
-        # normalized_matrix = cv2.normalize(self.eigenfaces[3].reshape(64, 64), None, 0, 255, cv2.NORM_MINMAX,
-        #                                   dtype=cv2.CV_8U)
-        # cv2.imwrite('test.png', normalized_matrix)
 
         temp_norms = []
         for i in self.transformed_faces:
@@ -72,25 +48,6 @@ class Kernel:
 
         self.theta = max(temp_norms) / 2
         print("theta: " + str(self.theta))
-
-
-
-        print()
-
-
-        # print(pca.components_[0])
-        # print(self.eigenfaces[0])
-        # print()
-        # print(pca.components_[1])
-        # print(self.eigenfaces[1])
-        # print()
-        # print(pca.components_[2])
-        # print(self.eigenfaces[2])
-        # print()
-        # print(pca.components_[3])
-        # print(self.eigenfaces[3])
-
-        # X_pca = pca.transform(feature_vectors)
 
     def login(self, image_path):
         image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
@@ -110,9 +67,6 @@ class Kernel:
 
         print("ksi: " + str(ksi))
 
-        normalized_matrix = cv2.normalize(reconstructed_face.reshape(64, 64), None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-        cv2.imwrite('test.png', normalized_matrix)
-
         if ksi >= self.theta:
             print("This is not a face")
         else:
@@ -128,7 +82,6 @@ class Kernel:
                     print("Znana twarz")
                 else:
                     print("Ani nowe ani stare")
-
 
     def load_from_database(self):
         feature_vectors = []
