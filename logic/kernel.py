@@ -22,13 +22,12 @@ class Kernel:
 
     def compute_eigenfaces(self):
         if len(os.listdir(IMAGE_FOLDER)) == 0:
-            return
+            return None
 
         feature_vectors = self.load_from_database()
 
         self.mean_face = np.mean(feature_vectors, axis=0)
         feature_vectors_subtracted = feature_vectors - self.mean_face
-
         covariance_matrix = (
                 feature_vectors_subtracted.dot(feature_vectors_subtracted.T) / len(feature_vectors_subtracted))
         eigenvalues, eigenvectors = np.linalg.eig(covariance_matrix)
@@ -50,6 +49,9 @@ class Kernel:
         self.theta = max(temp_norms) / 4
 
     def login(self, image_path):
+        if len(os.listdir(IMAGE_FOLDER)) == 0:
+            return
+
         image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
         image_vector = image.flatten() / 255.0
 
@@ -60,14 +62,22 @@ class Kernel:
         for face in self.transformed_faces:
             epsilon.append(np.linalg.norm(projected_vector - face))
 
+        if min(epsilon) < self.theta:
+            return self.image_names[np.argmin(epsilon)].replace('_', ' ')
+        else:
+            return None
+
     def load_from_database(self):
         feature_vectors = []
+        image_names = []
 
         for filename in os.listdir(IMAGE_FOLDER):
             file_path = os.path.join(IMAGE_FOLDER, filename)
 
             image = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
             feature_vectors.append(image.flatten() / 255.0)
-            self.image_names.append(filename)
+            username = filename.split("_")[:-1]
+            image_names.append("_".join(username))
 
+        self.image_names = image_names
         return feature_vectors

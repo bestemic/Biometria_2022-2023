@@ -95,7 +95,7 @@ class AppView:
         menu_label.pack(pady=(50, 25))
 
         # import images
-        self.register_images_info = Label(self.register_file_screen, text="Select 8 image files", font="helvetica 18",
+        self.register_images_info = Label(self.register_file_screen, text="Select 7 image files", font="helvetica 18",
                                           fg=LIGHT, bg=DARK)
         self.register_images_info.pack(pady=(10, 5))
 
@@ -135,8 +135,8 @@ class AppView:
             ("Image files", "*.png *.jpg *.jpeg"), ("All files", "*.*")))
         root.destroy()
 
-        if len(file_paths) != 8:
-            self.register_images_info.config(text="Please select exactly 8 Image files", fg="red")
+        if len(file_paths) != 7:
+            self.register_images_info.config(text="Please select exactly 7 Image files", fg="red")
             return
         else:
             self.register_images_info.config(text="Correctly imported files", fg="green")
@@ -152,8 +152,8 @@ class AppView:
         else:
             self.entry_name_info.config(text="")
 
-        if len(self.register_files) != 8:
-            self.register_images_info.config(text="Please select exactly 8 Image files", fg="red")
+        if len(self.register_files) != 7:
+            self.register_images_info.config(text="Please select exactly 7 Image files", fg="red")
             return
 
         if not os.path.exists('database'):
@@ -180,7 +180,7 @@ class AppView:
         self.kernel.compute_eigenfaces()
 
     def register_clear_and_back(self):
-        self.register_images_info.config(text="Select 8 image files", fg="white")
+        self.register_images_info.config(text="Select 7 image files", fg="white")
         self.entry_name_info.config(text="")
         self.name_entry.delete(0, END)
         self.register_files.clear()
@@ -239,9 +239,13 @@ class AppView:
             self.login_images_info.config(text="Please select exactly one file", fg="red")
             return
 
-        self.kernel.login(self.login_file)
+        name = self.kernel.login(self.login_file)
 
-        self.login_name_info.config(text="Not autorized user", fg="red")
+        if name is not None:
+            self.login_name_info.config(text=f"Welcome {name}", fg="green")
+        else:
+            self.login_name_info.config(text="Not authorized user", fg="red")
+
         return
 
     def login_clear_and_back(self):
