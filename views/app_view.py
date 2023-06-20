@@ -3,6 +3,8 @@ import shutil
 from tkinter import *
 from tkinter import filedialog
 
+from logic.kernel import Kernel
+
 DARK = '#26242f'
 LIGHT = 'white'
 DARK_BUTTON = '#16151c'
@@ -16,6 +18,8 @@ class AppView:
         self.screen = Frame(self.root)
         self.start_screen = Frame(self.root)
         self.menu_screen = Frame(self.root)
+        self.kernel = Kernel()
+        self.kernel.compute_eigenfaces()
         self.register_file_screen = Frame(self.root)
         self.login_file_screen = Frame(self.root)
         self.register_images_info = None
@@ -66,41 +70,20 @@ class AppView:
         menu_label = Label(self.menu_screen, text="Select option", font="Helvetica 45", fg=LIGHT, bg=DARK)
         menu_label.pack(pady=(50, 75))
 
-        button_container = Frame(self.menu_screen, bg=DARK)
-        button_container.pack()
+        login_button = Button(self.menu_screen, text="Login", font=("Helvetica", 27), bg=DARK_BUTTON,
+                              fg=LIGHT,
+                              activebackground=DARK_BUTTON_FOCUS, activeforeground=LIGHT, bd=5, width=18,
+                              command=self.open_login_file_screen)
+        login_button.pack(pady=20)
 
-        button_container_left = Frame(button_container, bg=DARK)
-        button_container_left.pack(side=LEFT, padx=(0, 20))
-
-        button_container_right = Frame(button_container, bg=DARK)
-        button_container_right.pack(side=RIGHT, padx=(20, 0))
-
-        login_button1 = Button(button_container_left, text="Login by File", font=("Helvetica", 27), bg=DARK_BUTTON,
-                               fg=LIGHT,
-                               activebackground=DARK_BUTTON_FOCUS, activeforeground=LIGHT, bd=5, width=18,
-                               command=self.open_login_file_screen)
-        login_button1.pack(pady=20)
-
-        login_button2 = Button(button_container_right, text="Login by Camera", font=("Helvetica", 27), bg=DARK_BUTTON,
-                               fg=LIGHT,
-                               activebackground=DARK_BUTTON_FOCUS, activeforeground=LIGHT, bd=5, width=18,
-                               command=self.open_start_screen)
-        login_button2.pack(pady=20)
-
-        register_button1 = Button(button_container_left, text="Register by File", font=("Helvetica", 27),
-                                  bg=DARK_BUTTON, fg=LIGHT,
-                                  activebackground=DARK_BUTTON_FOCUS, activeforeground=LIGHT, bd=5, width=18,
-                                  command=self.open_register_file_screen)
-        register_button1.pack(pady=20)
-
-        register_button2 = Button(button_container_right, text="Register by Camera", font=("Helvetica", 27),
-                                  bg=DARK_BUTTON, fg=LIGHT,
-                                  activebackground=DARK_BUTTON_FOCUS, activeforeground=LIGHT, bd=5, width=18,
-                                  command=self.open_start_screen)
-        register_button2.pack(pady=20)
+        register_button = Button(self.menu_screen, text="Register", font=("Helvetica", 27),
+                                 bg=DARK_BUTTON, fg=LIGHT,
+                                 activebackground=DARK_BUTTON_FOCUS, activeforeground=LIGHT, bd=5, width=18,
+                                 command=self.open_register_file_screen)
+        register_button.pack(pady=20)
 
         back_button = Button(self.menu_screen, text="Back", font=("Helvetica", 27), bg=DARK_BUTTON, fg=LIGHT,
-                             activebackground=DARK_BUTTON_FOCUS, activeforeground=LIGHT, bd=5, width=15,
+                             activebackground=DARK_BUTTON_FOCUS, activeforeground=LIGHT, bd=5, width=18,
                              command=self.open_start_screen)
         back_button.pack(pady=(50, 0))
 
@@ -112,8 +95,8 @@ class AppView:
         menu_label.pack(pady=(50, 25))
 
         # import images
-        self.register_images_info = Label(self.register_file_screen, text="Select 8 image files", font="helvetica 18",
-                                        fg=LIGHT, bg=DARK)
+        self.register_images_info = Label(self.register_file_screen, text="Select 7 image files", font="helvetica 18",
+                                          fg=LIGHT, bg=DARK)
         self.register_images_info.pack(pady=(10, 5))
 
         select_files_button = Button(self.register_file_screen, text="Select files", font=("Helvetica", 18),
@@ -152,8 +135,8 @@ class AppView:
             ("Image files", "*.png *.jpg *.jpeg"), ("All files", "*.*")))
         root.destroy()
 
-        if len(file_paths) != 8:
-            self.register_images_info.config(text="Please select exactly 8 Image files", fg="red")
+        if len(file_paths) != 7:
+            self.register_images_info.config(text="Please select exactly 7 Image files", fg="red")
             return
         else:
             self.register_images_info.config(text="Correctly imported files", fg="green")
@@ -163,15 +146,14 @@ class AppView:
             return
 
     def register_with_files(self):
-        print("mam: " + self.name_entry.get())
         if self.name_entry.get() == "":
             self.entry_name_info.config(text="Please provide your name", fg="red")
             return
         else:
             self.entry_name_info.config(text="")
 
-        if len(self.register_files) != 8:
-            self.register_images_info.config(text="Please select exactly 8 Image files", fg="red")
+        if len(self.register_files) != 7:
+            self.register_images_info.config(text="Please select exactly 7 Image files", fg="red")
             return
 
         if not os.path.exists('database'):
@@ -186,7 +168,7 @@ class AppView:
         person_name = person_name[:-1]
 
         if os.path.exists("database/" + person_name + "_0.png"):
-            self.entry_name_info.config(text="Person with this name aready exist in database", fg="red")
+            self.entry_name_info.config(text="Person with this name already exist in database", fg="red")
             return
 
         for i, file_path in enumerate(self.register_files):
@@ -195,9 +177,10 @@ class AppView:
             shutil.copy2(file_path, new_file_path)
 
         self.entry_name_info.config(text="Successfully registered", fg="green")
+        self.kernel.compute_eigenfaces()
 
     def register_clear_and_back(self):
-        self.register_images_info.config(text="Select 8 image files", fg="white")
+        self.register_images_info.config(text="Select 7 image files", fg="white")
         self.entry_name_info.config(text="")
         self.name_entry.delete(0, END)
         self.register_files.clear()
@@ -212,7 +195,7 @@ class AppView:
 
         # import images
         self.login_images_info = Label(self.login_file_screen, text="Select one image file", font="helvetica 18",
-                                        fg=LIGHT, bg=DARK)
+                                       fg=LIGHT, bg=DARK)
         self.login_images_info.pack(pady=(10, 5))
 
         select_files_button = Button(self.login_file_screen, text="Select file", font=("Helvetica", 18),
@@ -222,9 +205,9 @@ class AppView:
         select_files_button.pack(pady=(0, 20))
 
         login_button = Button(self.login_file_screen, text="Login", font=("Helvetica", 18),
-                               bg=DARK_BUTTON, fg=LIGHT,
-                               activebackground=DARK_BUTTON_FOCUS, activeforeground=LIGHT, bd=5, width=12,
-                               command=self.login_by_file)
+                              bg=DARK_BUTTON, fg=LIGHT,
+                              activebackground=DARK_BUTTON_FOCUS, activeforeground=LIGHT, bd=5, width=12,
+                              command=self.login_by_file)
         login_button.pack()
 
         self.login_name_info = Label(self.login_file_screen, text="", font="helvetica 18", fg=LIGHT, bg=DARK)
@@ -244,22 +227,26 @@ class AppView:
             ("Image files", "*.png *.jpg *.jpeg"), ("All files", "*.*")))
         root.destroy()
 
-        if not file_path:
+        if not file_path or len(file_path) != 1:
             self.login_images_info.config(text="Please select exactly one file", fg="red")
             return
         else:
             self.login_images_info.config(text="Correctly imported file", fg="green")
-            self.login_file = file_path
+            self.login_file = file_path[0]
 
     def login_by_file(self):
         if not self.login_file:
             self.login_images_info.config(text="Please select exactly one file", fg="red")
             return
 
-        self.login_name_info.config(text="Not autorized user", fg="red")
+        name = self.kernel.login(self.login_file)
+
+        if name is not None:
+            self.login_name_info.config(text=f"Welcome {name}", fg="green")
+        else:
+            self.login_name_info.config(text="Not authorized user", fg="red")
+
         return
-
-
 
     def login_clear_and_back(self):
         self.login_images_info.config(text="Select one image File", fg="white")

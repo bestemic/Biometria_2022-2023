@@ -6,7 +6,7 @@ from views.app_view import AppView
 if __name__ == '__main__':
     print("Starting Eigenfaces app")
 
-    if len(sys.argv) and (sys.argv[1] == "--generate"):
+    if len(sys.argv) == 2 and (sys.argv[1] == "--generate"):
         generate()
 
     view = AppView()
